@@ -1,0 +1,81 @@
+<html>
+    <head>
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+            <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+            <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap-treeview/1.2.0/bootstrap-treeview.min.css" >
+            
+            <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+            <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+            <script src="https://cdn.bootcss.com/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script>    
+    </head>
+   
+
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3">
+                        <div id="tree">
+
+                        </div>
+                </div>
+                <div class="col-sm-9">
+                        <table id="table_id_example" class="display">
+                                <thead>
+                                <tr>
+                                    {% for column in tableField %}
+                                    <th>{{ column }}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in tableData %}
+                                <tr>
+                                    {% for data in row %}
+                                    <td>{{ data }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                </div>
+            </div>
+        </div>
+  
+           
+    </body>
+    <script>
+
+           
+
+            $(document).ready(function () {
+                $('#table_id_example').DataTable();
+            });
+
+            function getTree() {
+                // Some logic to retrieve, or generate tree structure
+                var data = [
+                    {% for i in tableNameList %}
+                    {
+                        text:"{{ i }}",
+                        href:"{% url 'showtable' i %}"
+                    },
+                    {% endfor %}
+                ];
+                
+                
+                
+                return data;
+            }
+ 
+            $('#tree').treeview({data: getTree(),
+                enableLinks:true}); 
+            $('#treexx').on('nodeSelected', function(event, data) {
+            alert(JSON.stringify(data));
+            alert(data.text);
+            alert(data.nodeId); 
+            }) 
+
+
+                
+        </script>
+</html>

@@ -54,7 +54,10 @@ def parseDataXML(dataTableName):
     print the whole table data, tableRow stores one row data
     """
    
-    if (len(recordList) == 1):
+    if (len(recordList["record"]) == 1):
+        print("----------------------##############")
+        print(len(recordList))
+        print(recordList["record"])
         for field in recordList["record"]["field"]:
             tableRow.append(field["value"])
         table.append(tableRow)
@@ -93,8 +96,10 @@ def traverseFile(path):
 def index(request):
     print(settings.XML_FILE_PATH)
     traverseFile(settings.XML_FILE_PATH)
-    parseInfoXML("D:\\AppliqueRelayInfo.xml")
-    parseDataXML("D:\\AppliqueRelayData.xml")
+    indexXMLInfoFile = settings.XML_FILE_PATH + "\\" + "AppliqueRelay" + "Info.xml"
+    indexXMLDataFile = settings.XML_FILE_PATH + "\\" + "AppliqueRelay" + "Data.xml"
+    parseInfoXML(indexXMLInfoFile)
+    parseDataXML(indexXMLDataFile)
 
     print(tableNameList)
    
