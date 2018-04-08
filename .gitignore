@@ -98,6 +98,7 @@ ENV/
 /site
 
 db.sqlite3
+.vscode/
 /xmlfiles
 
 # mypy
