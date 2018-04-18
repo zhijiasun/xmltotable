@@ -3,10 +3,21 @@
             <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
             <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
             <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap-treeview/1.2.0/bootstrap-treeview.min.css" >
-            
+            <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
             <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
             <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
-            <script src="https://cdn.bootcss.com/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script>    
+            <script src="https://cdn.bootcss.com/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script> 
+            <style>
+                   td.details-control {
+            text-align:center;
+            color:forestgreen;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    text-align:center; 
+    color:red;
+}
+            </style>
     </head>
    
 
@@ -22,6 +33,7 @@
                         <table id="table_id_example" class="display">
                                 <thead>
                                 <tr>
+                                    <th></th>
                                     {% for column in tableField %}
                                     <th>{{ column }}</th>
                                     {% endfor %}
@@ -30,6 +42,7 @@
                                 <tbody>
                                 {% for row in tableData %}
                                 <tr>
+                                    <td class="details-control"><i class="fa fa-plus-square" aria-hidden="true"></i></td>
                                     {% for data in row %}
                                     <td>{{ data }}</td>
                                     {% endfor %}
@@ -44,38 +57,73 @@
            
     </body>
     <script>
+        function format(d) {
+            // `d` is the original data object for the row
+            return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+                '<tr>' +
+                '<td>Full name:</td>' +
+                '<td>' + d[1] + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td>Extension number:</td>' +
+                '<td>' + d.extn + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td>Extra info:</td>' +
+                '<td>And any further details here (images etc)...</td>' +
+                '</tr>' +
+                '</table>';
+        }
+        $(document).ready(function () {
+            var table = $('#table_id_example').DataTable();
 
-           
-
-            $(document).ready(function () {
-                $('#table_id_example').DataTable();
+            $('#table_id_example tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var tdi = tr.find("i.fa");
+                var row = table.row(tr);
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                    tdi.first().removeClass('fa-minus-square');
+                    tdi.first().addClass('fa-plus-square');
+                }
+                else {
+                    
+                    alert(row.data()[1]);
+                    // Open this row
+                    row.child(format(row.data())).show();
+                    tr.addClass('shown');
+                    tdi.first().removeClass('fa-plus-square');
+                    tdi.first().addClass('fa-minus-square');
+                }
             });
+        });
 
-            function getTree() {
-                // Some logic to retrieve, or generate tree structure
-                var data = [
-                    {% for i in tableNameList %}
+        function getTree() {
+            // Some logic to retrieve, or generate tree structure
+            var data = [
+                {% for i in tableNameList %}
                     {
-                        text:"{{ i }}",
-                        href:"{% url 'showtable' i %}"
+                        text: "{{ i }}",
+                        href: "{% url 'showtable' i %}"
                     },
-                    {% endfor %}
+                {% endfor %}
                 ];
-                
-                
-                
-                return data;
-            }
- 
-            $('#tree').treeview({data: getTree(),
-                enableLinks:true}); 
-            $('#treexx').on('nodeSelected', function(event, data) {
+
+
+
+        return data;
+                }
+
+        $('#tree').treeview({
+            data: getTree(),
+            enableLinks: true
+        });
+        $('#treexx').on('nodeSelected', function (event, data) {
             alert(JSON.stringify(data));
             alert(data.text);
-            alert(data.nodeId); 
-            }) 
-
-
-                
-        </script>
+            alert(data.nodeId);
+        })
+    </script>
 </html>

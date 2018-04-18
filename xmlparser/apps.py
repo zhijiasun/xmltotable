@@ -3,8 +3,13 @@ import xmltodict
 import json
 import os, shutil
 from xmltotable import settings
+import threading
 
 
+def parseXML(**kwargs):
+    pass
+
+    
 class XmlparserConfig(AppConfig):
     name = 'xmlparser'
     tableNameList = []
@@ -89,6 +94,9 @@ class XmlparserConfig(AppConfig):
         self.tableContentDict[os.path.basename(dataTableName)] = table
 
 
+
+
+
     def traverseFile(self,path):
         for f in os.listdir(path):
             dataFile = path + "\\" + f
@@ -97,13 +105,16 @@ class XmlparserConfig(AppConfig):
                 self.tableNameList.append(tableName)
                 infoFile = path+"\\"+tableName + "Info.xml"
                 dataFile = path+"\\"+tableName + "Data.xml"
+
+                th = threading.Thread(target=parseXML,args=[infoFile,dataFile])
+                self.threads.append(th)
+
                 self.parseInfoXML(infoFile)
                 self.parseDataXML(dataFile)
 
 
     def ready(self):
         self.traverseFile(settings.XML_FILE_PATH)
-        #print(self.tableFieldNameDict)
 
 
     
