@@ -52,25 +52,35 @@ class XmlparserConfig(AppConfig):
 
         if "foreignKeyList" in xmlInfoCOntentStructure.keys():
             #the value of foreignKeyTableDict maybe List or OrderDict
-            self.foreignKeyTableDict[os.path.basename(infoTableName)]=xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"] 
+            #foreignKeyTableDict[os.path.basename(infoTableName)]=xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"] 
 
-            try:
-                print(xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"]["name"])
-            except Exception as identifier:
-                for foreignKey in xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"]:
-                    pass
-                    #print(foreignKey["name"])
-                
-    
-        
+            if (isinstance(xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"],dict)):
+                self.foreignKeyTableDict[os.path.basename(infoTableName)] = xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"]
+            elif (isinstance(xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"],list)):
+                pass
+            else:
+                pass
+                    
 
-        for row in xmlInfoFieldList["field"]:
-            try:
-                fieldName.append(row["name"])
-                fieldDBName.append(row["dbName"])
-            except TypeError as identifier:
-                fieldName.append(row[0])
-                fieldDBName.append(row[1])              
+        """
+        parse the info file and construct the table structure
+        """        
+        if (isinstance(xmlInfoFieldList["field"],list)):
+            #multiple columns
+            for row in xmlInfoFieldList["field"]:
+                if (isinstance(row,dict)):
+                    fieldName.append(row["name"])
+                    fieldDBName.append(row["dbName"])
+                elif(isinstance(row,list)):
+                    fieldName.append(row[0])
+                    fieldDBName.append(row[1])
+                else:
+                    print("tableName is:",os.path.basename(infoTableName),type(row),xmlInfoFieldList["field"])
+        elif(isinstance(xmlInfoFieldList["field"],dict)):
+            #only one column
+            fieldName.append(xmlInfoFieldList["field"]["name"])
+            fieldDBName.append(xmlInfoFieldList["field"]["dbName"])       
+                              
             
         self.tableFieldNameDict[os.path.basename(infoTableName)] = fieldName
 
@@ -88,30 +98,41 @@ class XmlparserConfig(AppConfig):
 
         """
         print the whole table data, tableRow stores one row data
+        case 1. mutltiple rows and multiple columns
+        case 2. only one row but multiple columns
+        case 3. multiple rows but only one columns
         """
-        try:
-            if (len(recordList["record"]) == 1):
+        if (isinstance(recordList,dict)):
+            if (isinstance(recordList["record"],list)):
+                #multiple rows in this table
+                for row in recordList["record"]:
+                    if (isinstance(row["field"],list)):
+                        # case 1. multiple columns 
+                        for field in row["field"]:
+                            tableRow.append(field["value"])
+                    elif(isinstance(row["field"],dict)):
+                        # case 3. only one columns
+                        tableRow.append(row["field"]["value"])
+                    else:
+                        #exception
+                        print("tableName is:"+os.path.basename(dataTableName),row["field"])
+                   
+                    table.append(tableRow)
+                    tableRow = []
+            elif (isinstance(recordList["record"],dict)):
+                #case 2. only one row in this table
                 for field in recordList["record"]["field"]:
                     tableRow.append(field["value"])
                 table.append(tableRow)
             else:
-                for row in recordList["record"]:
-                    for field in row["field"]:
-                        tableRow.append(field["value"])
-                    
-                    
-                    table.append(tableRow)
-                    tableRow = []
-        except Exception:
-            print("==================="+dataTableName)
-            #print(recordList)
+                print("tableName is:"+dataTableName,type(recordList["record"]))
+        else:
+            print("tableName is:"+os.path.basename(dataTableName)+" has no record.")
 
         self.tableContentDict[os.path.basename(dataTableName)] = table
 
 
-
-
-
+        
     def traverseFile(self,path):
         for f in os.listdir(path):
             dataFile = path + "\\" + f
