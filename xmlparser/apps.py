@@ -9,7 +9,7 @@ import threading
 def parseXML(**kwargs):
     pass
 
-    
+
 class XmlparserConfig(AppConfig):
     name = 'xmlparser'
     tableNameList = []
@@ -37,6 +37,7 @@ class XmlparserConfig(AppConfig):
     }
     """
     tableContentDict = {}
+    foreignKeyTableDict = {}
 
     threads = []
    
@@ -46,8 +47,22 @@ class XmlparserConfig(AppConfig):
         fieldDBName = []
         xmlInfoFile = open(infoTableName,"r").read()
         xmlInfoContent = xmltodict.parse(xmlInfoFile)
-        xmlInfoFieldList = xmlInfoContent["root"]["Configuration"]["Subsystem"]["TableList"]["table"]["structure"]["fieldList"]
+        xmlInfoCOntentStructure = xmlInfoContent["root"]["Configuration"]["Subsystem"]["TableList"]["table"]["structure"]
+        xmlInfoFieldList = xmlInfoCOntentStructure["fieldList"]
 
+        if "foreignKeyList" in xmlInfoCOntentStructure.keys():
+            #the value of foreignKeyTableDict maybe List or OrderDict
+            self.foreignKeyTableDict[os.path.basename(infoTableName)]=xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"] 
+
+            try:
+                print(xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"]["name"])
+            except Exception as identifier:
+                for foreignKey in xmlInfoCOntentStructure["foreignKeyList"]["foreignKey"]:
+                    pass
+                    #print(foreignKey["name"])
+                
+    
+        
 
         for row in xmlInfoFieldList["field"]:
             try:
@@ -89,7 +104,7 @@ class XmlparserConfig(AppConfig):
                     tableRow = []
         except Exception:
             print("==================="+dataTableName)
-            print(recordList)
+            #print(recordList)
 
         self.tableContentDict[os.path.basename(dataTableName)] = table
 

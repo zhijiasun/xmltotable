@@ -1,12 +1,15 @@
+{% load staticfiles %}
 <html>
     <head>
-            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
-            <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-            <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap-treeview/1.2.0/bootstrap-treeview.min.css" >
-            <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
-            <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-            <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
-            <script src="https://cdn.bootcss.com/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script> 
+            <link rel="stylesheet" type="text/css" href="{% static 'xmlparser/css/jquery.dataTables.min.css' %}">
+            <link rel="stylesheet" href="{% static 'xmlparser/css/bootstrap.min.css' %}">
+            <link rel="stylesheet" href="{% static 'xmlparser/css/bootstrap-treeview.min.css' %}" >
+            <link rel="stylesheet" href="{% static 'xmlparser/css/jquery-ui.min.css' %}" >
+            <link href="{% static 'xmlparser/css/font-awesome.min.css' %} " rel="stylesheet">
+            <script type="text/javascript" charset="utf8" src="{% static 'xmlparser/js/jquery-1.12.3.min.js' %}"></script>
+            <script type="text/javascript" charset="utf8" src="{% static 'xmlparser/js/jquery.dataTables.min.js' %}"></script>
+            <script type="text/javascript" charset="utf8" src="{% static 'xmlparser/js/jquery-ui.min.js' %}"></script>
+            <script src="{% static 'xmlparser/js/bootstrap-treeview.min.js' %}"></script> 
             <style>
                    td.details-control {
             text-align:center;
@@ -33,7 +36,7 @@ tr.shown td.details-control {
                         <table id="table_id_example" class="display">
                                 <thead>
                                 <tr>
-                                    <th></th>
+                                    <!--<th></th>-->
                                     {% for column in tableField %}
                                     <th>{{ column }}</th>
                                     {% endfor %}
@@ -42,7 +45,7 @@ tr.shown td.details-control {
                                 <tbody>
                                 {% for row in tableData %}
                                 <tr>
-                                    <td class="details-control"><i class="fa fa-plus-square" aria-hidden="true"></i></td>
+                                    <!--<td class="details-control"><i class="fa fa-plus-square" aria-hidden="true"></i></td>-->
                                     {% for data in row %}
                                     <td>{{ data }}</td>
                                     {% endfor %}
@@ -77,10 +80,62 @@ tr.shown td.details-control {
         $(document).ready(function () {
             var table = $('#table_id_example').DataTable();
 
+            $('#table_id_example tbody').on('mouseenter','td',function(){
+                var colIdx = table.cell(this).index().column;
+                var value = table.cell(this).data();
+                var cellData = {};
+                cellData["index"]=colIdx;
+                cellData["value"]=value;
+                tdObjec = $(this);
+                //console.log(colIdx);
+                //console.log(value);
+
+                $.get(location.href,cellData,function(datas){
+                   if (datas.isForeignKey)
+                   {
+                        //$(this).wrapInner("<a href='#' title='Table:BoardTypeInfo\r\nBoardType:13165\r\nBoardTypeStr:NVPS-A'></a>");
+                        tdObjec.wrapInner("<a href='#' title='Table:"+datas.ReferenceTable+"\r\n"+datas.ReferenceFieldName+":"+value+"\r\nBoardTypeStr:"+datas.DisplayFieldValue+"'></a>");
+                   }
+                })
+            });
+            $('#table_id_example tbody').on('mouseleave','td',function(){
+                
+                var text = $(this).find("a").text();
+                if (text)
+                {
+                    console.log(text)
+                    $(this).find("a").remove();
+                    $(this).text(text);
+                }
+                else
+                {
+                    console.log("false-------")
+                    console.log(text)
+                }
+                
+            });
+
             $('#table_id_example tbody').on('click', 'td.details-control', function () {
                 var tr = $(this).closest('tr');
                 var tdi = tr.find("i.fa");
                 var row = table.row(tr);
+                var rowData = {};
+                  
+                var dd = row.data();
+                for (var i in dd)
+                {
+                    if (i != 0)
+                    {
+                        console.log(i,dd[i]);
+                        rowData[i]=dd[i];
+                    }    
+                }
+                console.log(rowData);
+                
+                $.get(location.href,rowData,function(datas){
+                    
+                })
+               
                 if (row.child.isShown()) {
                     // This row is already open - close it
                     row.child.hide();
@@ -89,8 +144,6 @@ tr.shown td.details-control {
                     tdi.first().addClass('fa-plus-square');
                 }
                 else {
-                    
-                    alert(row.data()[1]);
                     // Open this row
                     row.child(format(row.data())).show();
                     tr.addClass('shown');
@@ -120,10 +173,5 @@ tr.shown td.details-control {
             data: getTree(),
             enableLinks: true
         });
-        $('#treexx').on('nodeSelected', function (event, data) {
-            alert(JSON.stringify(data));
-            alert(data.text);
-            alert(data.nodeId);
-        })
     </script>
 </html>
