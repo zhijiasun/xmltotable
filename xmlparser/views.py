@@ -30,7 +30,6 @@ def showtable(request,tableName):
     isForeignKey = False
 
     if (len(request.GET) == 0):
-        print("len is 0")
         context = {"tableField":apps.XmlparserConfig.tableFieldNameDict[infoFile],
                     "tableData":apps.XmlparserConfig.tableContentDict[dataFile],
                     "tableNameList":apps.XmlparserConfig.tableNameList}

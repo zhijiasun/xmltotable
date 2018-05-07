@@ -11,15 +11,16 @@
             <script type="text/javascript" charset="utf8" src="{% static 'xmlparser/js/jquery-ui.min.js' %}"></script>
             <script src="{% static 'xmlparser/js/bootstrap-treeview.min.js' %}"></script> 
             <style>
-                   td.details-control {
-            text-align:center;
-            color:forestgreen;
-    cursor: pointer;
-}
-tr.shown td.details-control {
-    text-align:center; 
-    color:red;
-}
+                td.details-control {
+                    text-align: center;
+                    color: forestgreen;
+                    cursor: pointer;
+                }
+            
+                tr.shown td.details-control {
+                    text-align: center;
+                    color: red;
+                }
             </style>
     </head>
    
@@ -36,7 +37,7 @@ tr.shown td.details-control {
                         <table id="table_id_example" class="display">
                                 <thead>
                                 <tr>
-                                    <!--<th></th>-->
+                                    <th></th>
                                     {% for column in tableField %}
                                     <th>{{ column }}</th>
                                     {% endfor %}
@@ -45,7 +46,7 @@ tr.shown td.details-control {
                                 <tbody>
                                 {% for row in tableData %}
                                 <tr>
-                                    <!--<td class="details-control"><i class="fa fa-plus-square" aria-hidden="true"></i></td>-->
+                                    <td class="details-control"><i class="fa fa-plus-square" aria-hidden="true"></i></td>
                                     {% for data in row %}
                                     <td>{{ data }}</td>
                                     {% endfor %}
@@ -79,13 +80,16 @@ tr.shown td.details-control {
         }
         $(document).ready(function () {
             var table = $('#table_id_example').DataTable();
-
+            
+            /*
             $('#table_id_example tbody').on('mouseenter','td',function(){
+                if(flag){
                 var colIdx = table.cell(this).index().column;
                 var value = table.cell(this).data();
                 var cellData = {};
                 cellData["index"]=colIdx;
                 cellData["value"]=value;
+                flag = false;
                 tdObjec = $(this);
                 //console.log(colIdx);
                 //console.log(value);
@@ -97,7 +101,7 @@ tr.shown td.details-control {
                         tdObjec.wrapInner("<a href='#' title='Table:"+datas.ReferenceTable+"\r\n"+datas.ReferenceFieldName+":"+value+"\r\nBoardTypeStr:"+datas.DisplayFieldValue+"'></a>");
                    }
                 })
-            });
+            }});
             $('#table_id_example tbody').on('mouseleave','td',function(){
                 
                 var text = $(this).find("a").text();
@@ -113,7 +117,7 @@ tr.shown td.details-control {
                     console.log(text)
                 }
                 
-            });
+            });*/
 
             $('#table_id_example tbody').on('click', 'td.details-control', function () {
                 var tr = $(this).closest('tr');
